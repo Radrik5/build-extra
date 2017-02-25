@@ -2,7 +2,7 @@
 
 pkgname=('git-extra')
 _ver_base=1.1
-pkgver=1.1.130.3672f11
+pkgver=1.1.132.83f870c
 pkgrel=1
 pkgdesc="Git for Windows extra files"
 arch=('i686' 'x86_64')
@@ -64,6 +64,11 @@ prepare() {
 	-e "/^@@GITATTRIBUTES@@$/r $startdir/gitattributes" \
 	-e "/^@@GITATTRIBUTES@@$/d" \
 	<$startdir/$pkgname.install.in >$startdir/$pkgname.install
+  pacman -Syw --noconfirm ${MINGW_PACKAGE_PREFIX}-curl-winssl &&
+  rm -rf $startdir/curl-winssl && mkdir $startdir/curl-winssl &&
+  tar -C $startdir/curl-winssl \
+    -xf $(ls -t /var/cache/pacman/pkg/${MINGW_PACKAGE_PREFIX}-curl-winssl-*.pkg.tar.xz | head -n 1) \
+    --strip-components=2 ${MINGW_PREFIX:1}/bin/
 }
 
 build() {
@@ -82,6 +87,7 @@ package() {
   install -d -m755 $pkgdir/usr/bin
   install -d -m755 $pkgdir/usr/share/git
   install -d -m755 $pkgdir/${MINGW_PREFIX}/bin
+  install -d -m755 $pkgdir/${MINGW_PREFIX}/bin/curl-winssl
   install -m644 inputrc $pkgdir/etc
   install -m644 vimrc $pkgdir/etc
   install -m755 vi $pkgdir/usr/bin
@@ -97,4 +103,6 @@ package() {
   install -m644 msys2-32.ico $pkgdir/usr/share/git
   install -m644 99-post-install-cleanup.post $pkgdir/etc/post-install
   install -m755 astextplain $pkgdir/usr/bin
+  install -m755 curl-winssl/curl.exe $pkgdir/${MINGW_PREFIX}/bin/curl-winssl
+  install -m755 curl-winssl/libcurl-4.dll $pkgdir/${MINGW_PREFIX}/bin/curl-winssl
 }
